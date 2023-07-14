@@ -1,0 +1,27 @@
+name: git production update
+
+on: [ push ]
+
+env:
+  DEPLOY_GENERAL_PATH: /home/develop/back
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update server data
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.YC_DEPLOY_SERVER_HOST }}
+          port: ${{ secrets.YC_DEPLOY_SERVER_PORT }}
+          username: ${{ secrets.YC_DEPLOY_SERVER_USERNAME }}
+          password: ${{ secrets.YC_PASSWORD }}
+          script: |
+            sudo supervisorctl stop back 
+            cd ${{ env.DEPLOY_GENERAL_PATH }}
+            sudo git pull
+            sudo yarn
+            sudo yarn build 
+            sudo supervisorctl start back

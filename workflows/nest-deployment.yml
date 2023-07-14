@@ -1,0 +1,45 @@
+name: Deploy to server
+
+on: [ push ]
+
+env:
+  DEPLOY_GENERAL_PATH: /home/develop/back
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Stop server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.YC_DEPLOY_SERVER_HOST }}
+          port: ${{ secrets.YC_DEPLOY_SERVER_PORT }}
+          username: ${{ secrets.YC_DEPLOY_SERVER_USERNAME }}
+          password: ${{ secrets.YC_PASSWORD }}
+          script: |
+            echo ${{ secrets.YC_PASSWORD }} | sudo -S supervisorctl stop all
+      - name: Copy files to Server
+        uses: Dylan700/sftp-upload-action@latest
+        with:
+          server: ${{ secrets.YC_DEPLOY_SERVER_HOST }}
+          port: ${{ secrets.YC_DEPLOY_SERVER_PORT }}
+          username: ${{ secrets.YC_DEPLOY_SERVER_USERNAME }}
+          password: ${{ secrets.YC_PASSWORD }}
+          uploads: |
+            ./ => ${{ env.DEPLOY_GENERAL_PATH }}
+          delete: 'true'
+
+      - name: Install dependencies and build on Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.YC_DEPLOY_SERVER_HOST }}
+          port: ${{ secrets.YC_DEPLOY_SERVER_PORT }}
+          username: ${{ secrets.YC_DEPLOY_SERVER_USERNAME }}
+          password: ${{ secrets.YC_PASSWORD }}
+          script: |
+            cd ${{ env.DEPLOY_GENERAL_PATH }}
+            yarn
+            yarn build
+            echo ${{ secrets.YC_PASSWORD }} | sudo -S supervisorctl restart all
