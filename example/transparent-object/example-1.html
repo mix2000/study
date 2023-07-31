@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<img src="https://cs11.livemaster.ru/storage/topic/NxN/48/72/51ca01280af65e4ef909ed524902f4cfaf44vc.jpg?h=YsmDTRGuAl-rn9pK1vTgCA"
+     alt="Background" class="bg">
+<div class="container">
+    <div class="spotlight" id="spotlight"></div>
+</div>
+
+<style>
+    .container {
+        overflow: hidden;
+        background: black;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        mix-blend-mode: darken;
+    }
+
+    .bg, .spotlight {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .bg {
+        width: 100%;
+        height: auto;
+        object-fit: cover; /* Ensures the image covers the whole container */
+        z-index: 1;
+    }
+
+    .spotlight {
+        width: 200px;
+        height: 200px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 5;
+        background: #fff;
+        border-radius: 50%;
+    }
+
+
+</style>
+
+<script>
+    let pos = 0;
+    let box = document.getElementById('spotlight');
+    let boxWidth = box.offsetWidth;
+    let boxHeight = box.offsetHeight;
+    let velocity = 5;
+    let direction = { x: 1, y: 1 };
+
+    function animate() {
+        let windowWidth = window.innerWidth;
+        let windowHeight = window.innerHeight;
+
+        if(box.offsetTop + boxHeight > windowHeight || box.offsetTop < 0) {
+            direction.y *= -1;
+        }
+
+        if(box.offsetLeft + boxWidth > windowWidth || box.offsetLeft < 0) {
+            direction.x *= -1;
+        }
+
+        box.style.top = (box.offsetTop + direction.y * velocity) + 'px';
+        box.style.left = (box.offsetLeft + direction.x * velocity) + 'px';
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+
+</script>
+
+</body>
+</html>
